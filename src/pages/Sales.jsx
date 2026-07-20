@@ -1,25 +1,66 @@
 import React, { useState } from 'react';
-import { Plus, PackagePlus, AlertCircle } from 'lucide-react';
+import { Plus, PackagePlus, AlertCircle, MessageCircle } from 'lucide-react';
 import { useSales } from '../context/SalesContext';
+
+function buildOrderMessage(sale) {
+  const lines = [
+    `🥖 *Pão e Café da Roça* — Confirmação de Pedido`,
+    ``,
+    `Produto: ${sale.name}`,
+    `Quantidade: ${sale.qty} un.`,
+    `Total: R$ ${sale.total.toFixed(2)}`,
+    ``,
+    `Obrigado pela preferência! 😊`,
+  ];
+  return lines.join('\n');
+}
+
+function sanitizePhone(phone) {
+  const digits = phone.replace(/\D/g, '');
+  if (!digits) return '';
+  return digits.startsWith('55') ? digits : `55${digits}`;
+}
+
+function buildWhatsAppUrl(phone, message) {
+  const cleanPhone = sanitizePhone(phone);
+  const encodedMessage = encodeURIComponent(message);
+  return cleanPhone
+    ? `https://wa.me/${cleanPhone}?text=${encodedMessage}`
+    : `https://wa.me/?text=${encodedMessage}`;
+}
 
 export default function Sales() {
   const { products, salesHistory, addSale, restockProduct } = useSales();
   const [selectedProductId, setSelectedProductId] = useState(products[0]?.id ?? '');
   const [quantity, setQuantity] = useState(1);
+  const [customerPhone, setCustomerPhone] = useState('');
   const [error, setError] = useState('');
   const [restockAmounts, setRestockAmounts] = useState({});
+  const [lastSale, setLastSale] = useState(null);
 
   const selectedProduct = products.find((p) => p.id === Number(selectedProductId));
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setError('');
+    setLastSale(null);
+
     const result = addSale(selectedProductId, quantity);
-    if (!result.success) {
-      setError(result.message);
+
+    if (!result || !result.success) {
+      setError(result?.message || 'Não foi possível registrar a venda.');
       return;
     }
+
+    setLastSale({ ...result.sale, phone: customerPhone });
     setQuantity(1);
+  };
+
+  const handleSendWhatsApp = () => {
+    if (!lastSale) return;
+    const message = buildOrderMessage(lastSale);
+    const url = buildWhatsAppUrl(lastSale.phone, message);
+    window.open(url, '_blank');
   };
 
   const handleRestock = (productId) => {
@@ -70,6 +111,19 @@ export default function Sales() {
               />
             </div>
 
+            <div>
+              <label className="block text-xs font-medium text-slate-400 mb-1">
+                WhatsApp do cliente <span className="text-slate-600">(opcional)</span>
+              </label>
+              <input
+                type="tel"
+                placeholder="(88) 99999-9999"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-green-500"
+              />
+            </div>
+
             {error && <p className="text-xs text-rose-400">{error}</p>}
 
             <button
@@ -79,6 +133,16 @@ export default function Sales() {
             >
               <Plus className="w-4 h-4" /> Confirmar Venda
             </button>
+
+            {lastSale && (
+              <button
+                type="button"
+                onClick={handleSendWhatsApp}
+                className="w-full bg-[#25D366] hover:bg-[#1ebe5a] text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4" /> Enviar pedido via WhatsApp
+              </button>
+            )}
           </form>
 
           <div className="border-t border-slate-800 pt-4">
