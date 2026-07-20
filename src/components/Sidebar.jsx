@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, LayoutDashboard, ShoppingCart, Sparkles } from 'lucide-react';
+import { TrendingUp, LayoutDashboard, ShoppingCart, Sparkles, Lock } from 'lucide-react';
 
 export default function Sidebar({ activeTab, setActiveTab }) {
   return (
@@ -35,6 +35,17 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             }`}
           >
             <ShoppingCart className="w-5 h-5" /> Registrar Venda
+          </button>
+
+          <button
+            onClick={() => setActiveTab('caixa')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'caixa'
+                ? 'bg-green-600 text-white shadow-md shadow-green-600/20'
+                : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/60'
+            }`}
+          >
+            <Lock className="w-5 h-5" /> Fechamento de Caixa
           </button>
 
           <button
