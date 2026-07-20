@@ -1,17 +1,32 @@
 import React, { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, PackagePlus, AlertCircle } from 'lucide-react';
 import { useSales } from '../context/SalesContext';
 
 export default function Sales() {
-  const { salesHistory, addSale } = useSales();
-  const [selectedProduct, setSelectedProduct] = useState('Café Especial|12.50');
+  const { products, salesHistory, addSale, restockProduct } = useSales();
+  const [selectedProductId, setSelectedProductId] = useState(products[0]?.id ?? '');
   const [quantity, setQuantity] = useState(1);
+  const [error, setError] = useState('');
+  const [restockAmounts, setRestockAmounts] = useState({});
+
+  const selectedProduct = products.find((p) => p.id === Number(selectedProductId));
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const [name, price] = selectedProduct.split('|');
-    addSale(name, price, quantity);
+    setError('');
+    const result = addSale(selectedProductId, quantity);
+    if (!result.success) {
+      setError(result.message);
+      return;
+    }
     setQuantity(1);
+  };
+
+  const handleRestock = (productId) => {
+    const amount = restockAmounts[productId];
+    if (!amount) return;
+    restockProduct(productId, amount);
+    setRestockAmounts((prev) => ({ ...prev, [productId]: '' }));
   };
 
   return (
@@ -22,20 +37,26 @@ export default function Sales() {
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 h-fit">
+        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 h-fit space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-slate-400 mb-1">Produto</label>
               <select
-                value={selectedProduct}
-                onChange={(e) => setSelectedProduct(e.target.value)}
+                value={selectedProductId}
+                onChange={(e) => { setSelectedProductId(e.target.value); setError(''); }}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-green-500"
               >
-                <option value="Café Especial|12.50">Café Especial (R$ 12,50)</option>
-                <option value="Bolo Chocolate|25.00">Bolo Chocolate (R$ 25,00)</option>
-                <option value="Suco Natural|8.00">Suco Natural (R$ 8,00)</option>
-                <option value="Pão Artesanal|6.50">Pão Artesanal (R$ 6,50)</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} (R$ {p.price.toFixed(2)}) — {p.stock} un. em estoque
+                  </option>
+                ))}
               </select>
+              {selectedProduct && selectedProduct.stock <= selectedProduct.minStock && (
+                <p className="text-xs text-rose-400 mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" /> Estoque baixo para este produto.
+                </p>
+              )}
             </div>
 
             <div>
@@ -44,15 +65,54 @@ export default function Sales() {
                 type="number"
                 min="1"
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
+                onChange={(e) => { setQuantity(e.target.value); setError(''); }}
                 className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-green-500"
               />
             </div>
 
-            <button type="submit" className="w-full bg-green-600 hover:bg-green-500 text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2">
+            {error && <p className="text-xs text-rose-400">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={!selectedProduct || selectedProduct.stock === 0}
+              className="w-full bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+            >
               <Plus className="w-4 h-4" /> Confirmar Venda
             </button>
           </form>
+
+          <div className="border-t border-slate-800 pt-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Estoque de Produtos</h3>
+            <div className="space-y-2">
+              {products.map((p) => (
+                <div key={p.id} className="flex items-center justify-between gap-2 text-sm">
+                  <div>
+                    <span className="text-slate-200">{p.name}</span>
+                    <span className={`ml-2 text-xs ${p.stock <= p.minStock ? 'text-rose-400' : 'text-slate-500'}`}>
+                      {p.stock} un.
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="+qtd"
+                      value={restockAmounts[p.id] || ''}
+                      onChange={(e) => setRestockAmounts((prev) => ({ ...prev, [p.id]: e.target.value }))}
+                      className="w-16 bg-slate-950 border border-slate-800 rounded p-1 text-xs text-slate-200 focus:outline-none focus:border-green-500"
+                    />
+                    <button
+                      onClick={() => handleRestock(p.id)}
+                      className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-green-400"
+                      title="Repor estoque"
+                    >
+                      <PackagePlus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6">

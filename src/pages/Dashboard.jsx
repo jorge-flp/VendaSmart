@@ -5,7 +5,21 @@ import SalesChart from '../components/Saleschart';
 import { useSales } from '../context/SalesContext';
 
 export default function Dashboard() {
-  const { salesValue, salesQty } = useSales();
+  const { salesValue, salesQty, products } = useSales();
+
+  const lowStockItems = products.filter((p) => p.stock <= p.minStock);
+  const lowStockText =
+    lowStockItems.length === 0
+      ? 'Tudo certo'
+      : lowStockItems.length === 1
+      ? lowStockItems[0].name
+      : `${lowStockItems.length} produtos`;
+  const lowStockSubtext =
+    lowStockItems.length === 0
+      ? 'Nenhum produto em alerta'
+      : lowStockItems.length === 1
+      ? `Restam ${lowStockItems[0].stock} un.`
+      : 'Verifique o estoque';
 
   return (
     <div className="space-y-8">
@@ -18,7 +32,7 @@ export default function Dashboard() {
         <StatCard title="Vendas Hoje" value={`R$ ${salesValue.toFixed(2)}`} subtext="+14% vs. ontem" icon={DollarSign} color="green" />
         <StatCard title="Produtos Vendidos" value={`${salesQty} un`} subtext="Capacidade normal" icon={Package} color="blue" />
         <StatCard title="Mais Vendido" value="Café Especial" subtext="90 vendas registradas" icon={Trophy} color="yellow" />
-        <StatCard title="Baixa Saída" value="Bolo Chocolate" subtext="Atenção ao estoque" icon={AlertTriangle} color="rose" />
+        <StatCard title="Baixa Saída" value={lowStockText} subtext={lowStockSubtext} icon={AlertTriangle} color="rose" />
       </div>
 
       <div className="p-6 rounded-xl bg-slate-900 border border-slate-800">
