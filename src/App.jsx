@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard';
 import Sales from './pages/Sales';
 import Demand from './pages/Demand';
 import Closing from './pages/Closing';
+import Products from './pages/Products';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -17,6 +18,7 @@ export default function App() {
         <main className="flex-1 p-8 space-y-8 overflow-y-auto">
           {activeTab === 'dashboard' && <Dashboard />}
           {activeTab === 'vendas' && <Sales />}
+          {activeTab === 'produtos' && <Products />}
           {activeTab === 'caixa' && <Closing />}
           {activeTab === 'demanda' && <Demand />}
         </main>

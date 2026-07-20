@@ -19,6 +19,7 @@ export function SalesProvider({ children }) {
 
   const [closingHistory, setClosingHistory] = useState([]);
 
+  // --- Vendas ---
   const addSale = (productId, quantity) => {
     const qty = parseInt(quantity);
     const product = products.find((p) => p.id === Number(productId));
@@ -58,13 +59,12 @@ export function SalesProvider({ children }) {
     );
   };
 
-  // Fecha o caixa: arquiva o resumo do dia e zera os contadores
+  // --- Fechamento de caixa ---
   const closeRegister = () => {
     if (salesHistory.length === 0) {
       return { success: false, message: 'Não há vendas registradas para fechar.' };
     }
 
-    // Agrupa as vendas por produto
     const breakdown = salesHistory.reduce((acc, sale) => {
       if (!acc[sale.name]) acc[sale.name] = { name: sale.name, qty: 0, total: 0 };
       acc[sale.name].qty += sale.qty;
@@ -85,12 +85,56 @@ export function SalesProvider({ children }) {
 
     setClosingHistory((prev) => [closing, ...prev]);
 
-    // Zera o dia
     setSalesValue(0);
     setSalesQty(0);
     setSalesHistory([]);
 
     return { success: true, closing };
+  };
+
+  // --- Catálogo de produtos (CRUD) ---
+  const validateProductInput = ({ name, price, stock, minStock }) => {
+    if (!name || !name.trim()) return 'Nome do produto é obrigatório.';
+    const p = parseFloat(price);
+    const s = parseInt(stock);
+    const ms = parseInt(minStock);
+    if (isNaN(p) || p <= 0) return 'Preço deve ser maior que zero.';
+    if (isNaN(s) || s < 0) return 'Estoque não pode ser negativo.';
+    if (isNaN(ms) || ms < 0) return 'Estoque mínimo não pode ser negativo.';
+    return null;
+  };
+
+  const addProduct = ({ name, price, stock, minStock }) => {
+    const error = validateProductInput({ name, price, stock, minStock });
+    if (error) return { success: false, message: error };
+
+    const newProduct = {
+      id: Date.now(),
+      name: name.trim(),
+      price: parseFloat(price),
+      stock: parseInt(stock),
+      minStock: parseInt(minStock),
+    };
+    setProducts((prev) => [...prev, newProduct]);
+    return { success: true, product: newProduct };
+  };
+
+  const updateProduct = (id, { name, price, stock, minStock }) => {
+    const error = validateProductInput({ name, price, stock, minStock });
+    if (error) return { success: false, message: error };
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === id
+          ? { ...p, name: name.trim(), price: parseFloat(price), stock: parseInt(stock), minStock: parseInt(minStock) }
+          : p
+      )
+    );
+    return { success: true };
+  };
+
+  const deleteProduct = (id) => {
+    setProducts((prev) => prev.filter((p) => p.id !== id));
   };
 
   return (
@@ -104,6 +148,9 @@ export function SalesProvider({ children }) {
         addSale,
         restockProduct,
         closeRegister,
+        addProduct,
+        updateProduct,
+        deleteProduct,
       }}
     >
       {children}
