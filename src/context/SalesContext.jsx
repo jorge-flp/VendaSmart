@@ -13,14 +13,14 @@ export function SalesProvider({ children }) {
   const [salesValue, setSalesValue] = useState(1250.00);
   const [salesQty, setSalesQty] = useState(85);
   const [salesHistory, setSalesHistory] = useState([
-    { id: 1, name: 'Café Especial', qty: 2, total: 25.00, time: '14:20' },
-    { id: 2, name: 'Pão Artesanal', qty: 5, total: 32.50, time: '13:45' },
+    { id: 1, name: 'Café Especial', qty: 2, total: 25.00, time: '14:20', seller: null },
+    { id: 2, name: 'Pão Artesanal', qty: 5, total: 32.50, time: '13:45', seller: null },
   ]);
 
   const [closingHistory, setClosingHistory] = useState([]);
 
   // --- Vendas ---
-  const addSale = (productId, quantity) => {
+  const addSale = (productId, quantity, sellerName = null) => {
     const qty = parseInt(quantity);
     const product = products.find((p) => p.id === Number(productId));
 
@@ -45,6 +45,7 @@ export function SalesProvider({ children }) {
       qty,
       total,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      seller: sellerName,
     };
     setSalesHistory((prev) => [newSale, ...prev]);
 
@@ -156,38 +157,6 @@ export function SalesProvider({ children }) {
       {children}
     </SalesContext.Provider>
   );
-
-  const addSale = (productId, quantity, sellerName = null) => {
-    const qty = parseInt(quantity);
-    const product = products.find((p) => p.id === Number(productId));
-
-    if (!product) return { success: false, message: 'Produto não encontrado.' };
-    if (!qty || qty <= 0) return { success: false, message: 'Quantidade inválida.' };
-    if (qty > product.stock) {
-      return { success: false, message: `Estoque insuficiente. Disponível: ${product.stock} un.` };
-    }
-
-    const total = product.price * qty;
-
-    setProducts((prev) =>
-      prev.map((p) => (p.id === product.id ? { ...p, stock: p.stock - qty } : p))
-    );
-
-    setSalesValue((prev) => prev + total);
-    setSalesQty((prev) => prev + qty);
-
-    const newSale = {
-      id: Date.now(),
-      name: product.name,
-      qty,
-      total,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      seller: sellerName,
-    };
-    setSalesHistory((prev) => [newSale, ...prev]);
-
-    return { success: true, sale: newSale };
-  };
 }
 
 export const useSales = () => useContext(SalesContext);
