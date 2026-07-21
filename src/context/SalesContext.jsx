@@ -156,6 +156,38 @@ export function SalesProvider({ children }) {
       {children}
     </SalesContext.Provider>
   );
+
+  const addSale = (productId, quantity, sellerName = null) => {
+    const qty = parseInt(quantity);
+    const product = products.find((p) => p.id === Number(productId));
+
+    if (!product) return { success: false, message: 'Produto não encontrado.' };
+    if (!qty || qty <= 0) return { success: false, message: 'Quantidade inválida.' };
+    if (qty > product.stock) {
+      return { success: false, message: `Estoque insuficiente. Disponível: ${product.stock} un.` };
+    }
+
+    const total = product.price * qty;
+
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, stock: p.stock - qty } : p))
+    );
+
+    setSalesValue((prev) => prev + total);
+    setSalesQty((prev) => prev + qty);
+
+    const newSale = {
+      id: Date.now(),
+      name: product.name,
+      qty,
+      total,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      seller: sellerName,
+    };
+    setSalesHistory((prev) => [newSale, ...prev]);
+
+    return { success: true, sale: newSale };
+  };
 }
 
 export const useSales = () => useContext(SalesContext);
