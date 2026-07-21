@@ -8,6 +8,7 @@ import Sales from './pages/Sales';
 import Demand from './pages/Demand';
 import Closing from './pages/Closing';
 import Products from './pages/Products';
+import Goals from './pages/Goals';
 
 function AppContent() {
   const { currentUser } = useAuth();
@@ -20,7 +21,7 @@ function AppContent() {
   const isAdmin = currentUser.role === 'admin';
 
   return (
-    <div className="flex min-h-screen bg-slate-950 text-slate-100 font-sans">
+    <div className="flex min-h-screen bg-stone-950 text-stone-100 font-sans">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
       <main className="flex-1 p-8 space-y-8 overflow-y-auto">
@@ -28,6 +29,7 @@ function AppContent() {
         {activeTab === 'vendas' && <Sales />}
         {activeTab === 'produtos' && isAdmin && <Products />}
         {activeTab === 'caixa' && isAdmin && <Closing />}
+        {activeTab === 'metas' && isAdmin && <Goals />}
         {activeTab === 'demanda' && <Demand />}
       </main>
     </div>

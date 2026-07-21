@@ -19,13 +19,13 @@ export default function SalesChart() {
       {
         label: 'Produção (R$)',
         data: [1400, 1500, 1200, 1900, 2300, 3000, 2700],
-        backgroundColor: '#2563EB',
+        backgroundColor: '#D97706',
         borderRadius: 4,
       },
       {
         label: 'Vendas (R$)',
         data: [1250, 1400, 1100, 1800, 2400, 3100, 2800],
-        backgroundColor: '#16A34A',
+        backgroundColor: '#C2410C',
         borderRadius: 4,
       },
     ],
@@ -35,11 +35,11 @@ export default function SalesChart() {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-      legend: { labels: { color: '#94A3B8' } },
+      legend: { labels: { color: '#A8A29E' } },
     },
     scales: {
-      x: { ticks: { color: '#64748B' }, grid: { color: '#1E293B' } },
-      y: { ticks: { color: '#64748B' }, grid: { color: '#1E293B' } },
+      x: { ticks: { color: '#78716C' }, grid: { color: '#292524' } },
+      y: { ticks: { color: '#78716C' }, grid: { color: '#292524' } },
     },
   };
 

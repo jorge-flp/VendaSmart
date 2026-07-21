@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, PackagePlus, AlertCircle, MessageCircle } from 'lucide-react';
 import { useSales } from '../context/SalesContext';
+import { useAuth } from '../context/AuthContext';
 
 function buildOrderMessage(sale) {
   const lines = [
@@ -31,6 +32,7 @@ function buildWhatsAppUrl(phone, message) {
 
 export default function Sales() {
   const { products, salesHistory, addSale, restockProduct } = useSales();
+  const { currentUser } = useAuth();
   const [selectedProductId, setSelectedProductId] = useState(products[0]?.id ?? '');
   const [quantity, setQuantity] = useState(1);
   const [customerPhone, setCustomerPhone] = useState('');
@@ -45,7 +47,7 @@ export default function Sales() {
     setError('');
     setLastSale(null);
 
-    const result = addSale(selectedProductId, quantity);
+    const result = addSale(selectedProductId, quantity, currentUser?.name);
 
     if (!result || !result.success) {
       setError(result?.message || 'Não foi possível registrar a venda.');
@@ -74,18 +76,18 @@ export default function Sales() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-white">Registrar Nova Venda</h1>
-        <p className="text-slate-400 text-sm">Lançamento de saídas no caixa.</p>
+        <p className="text-stone-400 text-sm">Lançamento de saídas no caixa.</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-8">
-        <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 h-fit space-y-6">
+        <div className="bg-stone-900 border border-stone-800 rounded-xl p-6 h-fit space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Produto</label>
+              <label className="block text-xs font-medium text-stone-400 mb-1">Produto</label>
               <select
                 value={selectedProductId}
                 onChange={(e) => { setSelectedProductId(e.target.value); setError(''); }}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-green-500"
+                className="w-full bg-stone-950 border border-stone-800 rounded-lg p-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500"
               >
                 {products.map((p) => (
                   <option key={p.id} value={p.id}>
@@ -101,26 +103,26 @@ export default function Sales() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">Quantidade</label>
+              <label className="block text-xs font-medium text-stone-400 mb-1">Quantidade</label>
               <input
                 type="number"
                 min="1"
                 value={quantity}
                 onChange={(e) => { setQuantity(e.target.value); setError(''); }}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-green-500"
+                className="w-full bg-stone-950 border border-stone-800 rounded-lg p-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-400 mb-1">
-                WhatsApp do cliente <span className="text-slate-600">(opcional)</span>
+              <label className="block text-xs font-medium text-stone-400 mb-1">
+                WhatsApp do cliente <span className="text-stone-600">(opcional)</span>
               </label>
               <input
                 type="tel"
                 placeholder="(88) 99999-9999"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-sm text-slate-200 focus:outline-none focus:border-green-500"
+                className="w-full bg-stone-950 border border-stone-800 rounded-lg p-2.5 text-sm text-stone-200 focus:outline-none focus:border-amber-500"
               />
             </div>
 
@@ -129,7 +131,7 @@ export default function Sales() {
             <button
               type="submit"
               disabled={!selectedProduct || selectedProduct.stock === 0}
-              className="w-full bg-green-600 hover:bg-green-500 disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
+              className="w-full bg-amber-600 hover:bg-amber-500 disabled:bg-stone-700 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-all flex items-center justify-center gap-2"
             >
               <Plus className="w-4 h-4" /> Confirmar Venda
             </button>
@@ -145,14 +147,14 @@ export default function Sales() {
             )}
           </form>
 
-          <div className="border-t border-slate-800 pt-4">
+          <div className="border-t border-stone-800 pt-4">
             <h3 className="text-sm font-semibold text-white mb-3">Estoque de Produtos</h3>
             <div className="space-y-2">
               {products.map((p) => (
                 <div key={p.id} className="flex items-center justify-between gap-2 text-sm">
                   <div>
-                    <span className="text-slate-200">{p.name}</span>
-                    <span className={`ml-2 text-xs ${p.stock <= p.minStock ? 'text-rose-400' : 'text-slate-500'}`}>
+                    <span className="text-stone-200">{p.name}</span>
+                    <span className={`ml-2 text-xs ${p.stock <= p.minStock ? 'text-rose-400' : 'text-stone-500'}`}>
                       {p.stock} un.
                     </span>
                   </div>
@@ -163,11 +165,11 @@ export default function Sales() {
                       placeholder="+qtd"
                       value={restockAmounts[p.id] || ''}
                       onChange={(e) => setRestockAmounts((prev) => ({ ...prev, [p.id]: e.target.value }))}
-                      className="w-16 bg-slate-950 border border-slate-800 rounded p-1 text-xs text-slate-200 focus:outline-none focus:border-green-500"
+                      className="w-16 bg-stone-950 border border-stone-800 rounded p-1 text-xs text-stone-200 focus:outline-none focus:border-amber-500"
                     />
                     <button
                       onClick={() => handleRestock(p.id)}
-                      className="p-1.5 rounded bg-slate-800 hover:bg-slate-700 text-green-400"
+                      className="p-1.5 rounded bg-stone-800 hover:bg-stone-700 text-amber-400"
                       title="Repor estoque"
                     >
                       <PackagePlus className="w-4 h-4" />
@@ -179,18 +181,20 @@ export default function Sales() {
           </div>
         </div>
 
-        <div className="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl p-6">
+        <div className="md:col-span-2 bg-stone-900 border border-stone-800 rounded-xl p-6">
           <h2 className="text-lg font-semibold text-white mb-4">Histórico Recente</h2>
           <div className="space-y-3">
             {salesHistory.map((item) => (
-              <div key={item.id} className="p-4 bg-slate-950 rounded-lg border border-slate-800 flex justify-between items-center">
+              <div key={item.id} className="p-4 bg-stone-950 rounded-lg border border-stone-800 flex justify-between items-center">
                 <div>
                   <h4 className="font-medium text-white text-sm">{item.name}</h4>
-                  <span className="text-xs text-slate-500">{item.time}</span>
+                  <span className="text-xs text-stone-500">
+                    {item.time} {item.seller && `· ${item.seller}`}
+                  </span>
                 </div>
                 <div className="text-right">
-                  <span className="font-semibold text-green-400 block text-sm">R$ {item.total.toFixed(2)}</span>
-                  <span className="text-xs text-slate-400">{item.qty} unidade(s)</span>
+                  <span className="font-semibold text-amber-400 block text-sm">R$ {item.total.toFixed(2)}</span>
+                  <span className="text-xs text-stone-400">{item.qty} unidade(s)</span>
                 </div>
               </div>
             ))}

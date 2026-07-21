@@ -19,6 +19,14 @@ export function SalesProvider({ children }) {
 
   const [closingHistory, setClosingHistory] = useState([]);
 
+  // --- Metas ---
+  const [salesGoal, setSalesGoal] = useState(1500);
+  const [productGoals, setProductGoalsState] = useState({});
+
+  const setProductGoal = (productId, qty) => {
+    setProductGoalsState((prev) => ({ ...prev, [productId]: parseInt(qty) || 0 }));
+  };
+
   // --- Vendas ---
   const addSale = (productId, quantity, sellerName = null) => {
     const qty = parseInt(quantity);
@@ -146,6 +154,10 @@ export function SalesProvider({ children }) {
         salesQty,
         salesHistory,
         closingHistory,
+        salesGoal,
+        setSalesGoal,
+        productGoals,
+        setProductGoal,
         addSale,
         restockProduct,
         closeRegister,
