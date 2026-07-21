@@ -27,7 +27,7 @@ function AppContent() {
       <main className="flex-1 p-8 space-y-8 overflow-y-auto">
         {activeTab === 'dashboard' && <Dashboard />}
         {activeTab === 'vendas' && <Sales />}
-        {activeTab === 'produtos' && isAdmin && <Products />}
+        {activeTab === 'produtos' && <Products />}
         {activeTab === 'caixa' && isAdmin && <Closing />}
         {activeTab === 'metas' && isAdmin && <Goals />}
         {activeTab === 'demanda' && <Demand />}

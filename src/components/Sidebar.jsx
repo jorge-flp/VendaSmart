@@ -67,7 +67,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             </button>
           )}
 
-          {isAdmin && (
             <button
               onClick={() => setActiveTab('metas')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
@@ -78,7 +77,6 @@ export default function Sidebar({ activeTab, setActiveTab }) {
             >
               <Target className="w-5 h-5" /> Metas & Relatórios
             </button>
-          )}
 
           <button
             onClick={() => setActiveTab('demanda')}
