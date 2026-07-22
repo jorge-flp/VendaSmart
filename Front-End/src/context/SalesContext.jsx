@@ -1,14 +1,9 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
 
 const SalesContext = createContext();
 
 export function SalesProvider({ children }) {
-  const [products, setProducts] = useState([
-    { id: 1, name: 'Café Especial', price: 12.50, stock: 40, minStock: 10 },
-    { id: 2, name: 'Bolo Chocolate', price: 25.00, stock: 8,  minStock: 10 },
-    { id: 3, name: 'Suco Natural',   price: 8.00,  stock: 25, minStock: 8  },
-    { id: 4, name: 'Pão Artesanal',  price: 6.50,  stock: 60, minStock: 15 },
-  ]);
+  const [products, setProducts] = useState([]);
 
   const [salesValue, setSalesValue] = useState(1250.00);
   const [salesQty, setSalesQty] = useState(85);
@@ -26,6 +21,27 @@ export function SalesProvider({ children }) {
   const setProductGoal = (productId, qty) => {
     setProductGoalsState((prev) => ({ ...prev, [productId]: parseInt(qty) || 0 }));
   };
+
+  const loadProducts = async () => {
+  try {
+    const response = await fetch('http://localhost:3000/products');
+    const data = await response.json();
+
+    const formattedProducts = data.map(product => ({
+      ...product,
+      minStock: product.min_stock
+    }));
+
+    setProducts(formattedProducts);
+
+  } catch (error) {
+    console.error('Erro ao carregar produtos:', error);
+  }
+};
+
+useEffect(() => {
+  loadProducts();
+}, []);
 
   // --- Vendas ---
   const addSale = (productId, quantity, sellerName = null) => {

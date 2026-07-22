@@ -1,92 +1,154 @@
-CREATE DATABASE vendasmart;
-
+CREATE DATABASE IF NOT EXISTS vendasmart;
 USE vendasmart;
 
-CREATE TABLE users(
-
-id INT AUTO_INCREMENT PRIMARY KEY,
-
-name VARCHAR(100) NOT NULL,
-
-email VARCHAR(100) UNIQUE,
-
-password VARCHAR(255) NOT NULL,
-
-role ENUM('admin','employee') DEFAULT 'employee',
-
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
+-- ==========================
+-- Usuários
+-- ==========================
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('admin','employee') DEFAULT 'employee',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE products(
+-- ==========================
+-- Estoque (antigo products)
+-- ==========================
+CREATE TABLE products (
+    id INT AUTO_INCREMENT PRIMARY KEY,
 
-id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description TEXT,
 
-name VARCHAR(100) NOT NULL,
+    category VARCHAR(80),
 
-price DECIMAL(10,2) NOT NULL,
+    barcode VARCHAR(50),
 
-stock INT DEFAULT 0,
+    supplier VARCHAR(120),
 
-min_stock INT DEFAULT 5,
+    photo VARCHAR(255),
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    cost_price DECIMAL(10,2) NOT NULL,
 
+    sell_price DECIMAL(10,2) NOT NULL,
+
+    stock INT DEFAULT 0,
+
+    min_stock INT DEFAULT 5,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ON UPDATE CURRENT_TIMESTAMP
 );
 
-CREATE TABLE sales(
+-- ==========================
+-- Vendas
+-- ==========================
+CREATE TABLE sales (
+    id INT AUTO_INCREMENT PRIMARY KEY,
 
-id INT AUTO_INCREMENT PRIMARY KEY,
+    seller_id INT,
 
-seller_id INT,
+    customer_phone VARCHAR(20),
 
-customer_phone VARCHAR(20),
+    total DECIMAL(10,2) NOT NULL,
 
-total DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-
-FOREIGN KEY (seller_id) REFERENCES users(id)
-
+    FOREIGN KEY (seller_id)
+        REFERENCES users(id)
 );
 
-CREATE TABLE sale_items(
+-- ==========================
+-- Itens da venda
+-- ==========================
+CREATE TABLE sale_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
 
-id INT AUTO_INCREMENT PRIMARY KEY,
+    sale_id INT NOT NULL,
 
-sale_id INT,
+    product_id INT NOT NULL,
 
-product_id INT,
+    quantity INT NOT NULL,
 
-quantity INT,
+    unit_cost DECIMAL(10,2),
 
-unit_price DECIMAL(10,2),
+    unit_price DECIMAL(10,2),
 
-subtotal DECIMAL(10,2),
+    subtotal DECIMAL(10,2),
 
-FOREIGN KEY(sale_id) REFERENCES sales(id),
+    FOREIGN KEY (sale_id)
+        REFERENCES sales(id)
+        ON DELETE CASCADE,
 
-FOREIGN KEY(product_id) REFERENCES products(id)
-
+    FOREIGN KEY (product_id)
+        REFERENCES products(id)
 );
 
-CREATE TABLE stock_movements(
+-- ==========================
+-- Controle de Fiados
+-- ==========================
+CREATE TABLE fiados (
+    id INT AUTO_INCREMENT PRIMARY KEY,
 
-id INT AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(120) NOT NULL,
 
-product_id INT,
+    customer_phone VARCHAR(20),
 
-user_id INT,
+    total DECIMAL(10,2) NOT NULL,
 
-type ENUM('entrada','saida','ajuste'),
+    paid DECIMAL(10,2) DEFAULT 0,
 
-quantity INT,
+    balance DECIMAL(10,2) NOT NULL,
 
-created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    due_date DATE,
 
-FOREIGN KEY(product_id) REFERENCES products(id),
+    status ENUM('aberto','pago','atrasado')
+    DEFAULT 'aberto',
 
-FOREIGN KEY(user_id) REFERENCES users(id)
+    observations TEXT,
 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
+-- ==========================
+-- Histórico dos pagamentos
+-- ==========================
+CREATE TABLE fiado_payments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    fiado_id INT NOT NULL,
+
+    amount DECIMAL(10,2) NOT NULL,
+
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (fiado_id)
+        REFERENCES fiados(id)
+        ON DELETE CASCADE
+);
+
+-- ==========================
+-- Movimentação de estoque
+-- ==========================
+CREATE TABLE stock_movements (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+
+    product_id INT NOT NULL,
+
+    user_id INT,
+
+    type ENUM('entrada','saida','ajuste') NOT NULL,
+
+    quantity INT NOT NULL,
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (product_id)
+        REFERENCES products(id),
+
+    FOREIGN KEY (user_id)
+        REFERENCES users(id)
+);

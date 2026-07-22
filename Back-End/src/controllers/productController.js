@@ -22,25 +22,58 @@ exports.getProducts = async (req, res) => {
 // CRIAR PRODUTO
 exports.createProduct = async (req, res) => {
     try {
-        const { name, price, stock, minStock } = req.body;
+
+        const {
+            name,
+            description,
+            category,
+            barcode,
+            supplier,
+            photo,
+            cost_price,
+            sell_price,
+            stock,
+            min_stock
+        } = req.body;
 
         const [result] = await db.query(
-        `INSERT INTO products 
-        (name, price, stock, min_stock)
-        VALUES (?, ?, ?, ?)`,
-        [name, price, stock, minStock]
-);
-
+            `INSERT INTO products
+            (
+                name,
+                description,
+                category,
+                barcode,
+                supplier,
+                photo,
+                cost_price,
+                sell_price,
+                stock,
+                min_stock
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [
+                name,
+                description,
+                category,
+                barcode,
+                supplier,
+                photo,
+                cost_price,
+                sell_price,
+                stock,
+                min_stock
+            ]
+        );
 
         const [newProduct] = await db.query(
             'SELECT * FROM products WHERE id = ?',
             [result.insertId]
         );
 
-
         res.status(201).json(newProduct[0]);
 
     } catch (error) {
+
         console.error(error);
 
         res.status(500).json({
@@ -49,37 +82,67 @@ exports.createProduct = async (req, res) => {
     }
 };
 
-
 // ATUALIZAR PRODUTO
 exports.updateProduct = async (req, res) => {
     try {
 
         const { id } = req.params;
-        const { name, price, stock, minStock } = req.body;
 
+        const {
+            name,
+            description,
+            category,
+            barcode,
+            supplier,
+            photo,
+            cost_price,
+            sell_price,
+            stock,
+            min_stock
+        } = req.body;
 
         await db.query(
-         `UPDATE products
-         SET name=?, price=?, stock=?, min_stock=?
-         WHERE id=?`,
-        [name, price, stock, minStock, id]
-);
-
+            `UPDATE products
+            SET
+                name=?,
+                description=?,
+                category=?,
+                barcode=?,
+                supplier=?,
+                photo=?,
+                cost_price=?,
+                sell_price=?,
+                stock=?,
+                min_stock=?
+            WHERE id=?`,
+            [
+                name,
+                description,
+                category,
+                barcode,
+                supplier,
+                photo,
+                cost_price,
+                sell_price,
+                stock,
+                min_stock,
+                id
+            ]
+        );
 
         const [updated] = await db.query(
-            'SELECT * FROM products WHERE id=?',
+            'SELECT * FROM products WHERE id = ?',
             [id]
         );
 
-
         res.json(updated[0]);
 
-    } catch(error){
+    } catch (error) {
 
         console.error(error);
 
         res.status(500).json({
-            message:'Erro ao atualizar produto.'
+            message: 'Erro ao atualizar produto.'
         });
     }
 };
