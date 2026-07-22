@@ -1,7 +1,7 @@
 # 🛒 VendaSmart
 
 <p align="center">
-  <img src="./docs/logo.png" width="170" alt="VendaSmart Logo">
+  <img src="./Front-End/public/favicon.png" width="170" alt="VendaSmart Logo">
 </p>
 
 <p align="center">
