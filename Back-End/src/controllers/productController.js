@@ -59,11 +59,11 @@ exports.updateProduct = async (req, res) => {
 
 
         await db.query(
-            `UPDATE products 
-             SET name=?, price=?, stock=?, minStock=?
-             WHERE id=?`,
-            [name, price, stock, minStock, id]
-        );
+         `UPDATE products
+         SET name=?, price=?, stock=?, min_stock=?
+         WHERE id=?`,
+        [name, price, stock, minStock, id]
+);
 
 
         const [updated] = await db.query(
