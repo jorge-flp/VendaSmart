@@ -4,9 +4,24 @@ const db = require('../config/database');
 // LISTAR PRODUTOS
 exports.getProducts = async (req, res) => {
     try {
-        const [products] = await db.query(
-            'SELECT * FROM products ORDER BY id DESC'
-        );
+        const [products] = await db.query(`
+    SELECT
+        id,
+        name,
+        description,
+        category,
+        barcode,
+        supplier,
+        photo,
+        cost_price AS costPrice,
+        sell_price AS sellPrice,
+        stock AS qtyInStock,
+        min_stock AS minStock,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+    FROM products
+    ORDER BY id DESC
+    `);
 
         res.json(products);
 
@@ -24,16 +39,16 @@ exports.createProduct = async (req, res) => {
     try {
 
         const {
-            name,
-            description,
-            category,
-            barcode,
-            supplier,
-            photo,
-            cost_price,
-            sell_price,
-            stock,
-            min_stock
+        name,
+        description,
+        category,
+        barcode,
+        supplier,
+        photo,
+        costPrice,
+        sellPrice,
+        stock,
+        minStock
         } = req.body;
 
         const [result] = await db.query(
@@ -58,17 +73,31 @@ exports.createProduct = async (req, res) => {
                 barcode,
                 supplier,
                 photo,
-                cost_price,
-                sell_price,
+                costPrice,
+                sellPrice,
                 stock,
-                min_stock
+                minStock
             ]
         );
 
-        const [newProduct] = await db.query(
-            'SELECT * FROM products WHERE id = ?',
-            [result.insertId]
-        );
+        const [newProduct] = await db.query(`
+    SELECT
+        id,
+        name,
+        description,
+        category,
+        barcode,
+        supplier,
+        photo,
+        cost_price AS costPrice,
+        sell_price AS sellPrice,
+        stock AS qtyInStock,
+        min_stock AS minStock,
+        created_at AS createdAt,
+        updated_at AS updatedAt
+    FROM products
+    WHERE id = ?
+`, [result.insertId]);
 
         res.status(201).json(newProduct[0]);
 
@@ -130,10 +159,24 @@ exports.updateProduct = async (req, res) => {
             ]
         );
 
-        const [updated] = await db.query(
-            'SELECT * FROM products WHERE id = ?',
-            [id]
-        );
+        const [updated] = await db.query(`
+            SELECT
+                id,
+                name,
+                description,
+                category,
+                barcode,
+                supplier,
+                photo,
+                cost_price AS costPrice,
+                sell_price AS sellPrice,
+                stock AS qtyInStock,
+                min_stock AS minStock,
+                created_at AS createdAt,
+                updated_at AS updatedAt
+            FROM products
+        WHERE id = ?
+        `, [id]);
 
         res.json(updated[0]);
 

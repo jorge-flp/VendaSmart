@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useCallback,
+  useEffect
+} from 'react';
+
 import { PRODUCTS, SALES, FIADOS, unitProfit, profitMargin, stockStatus } from '../data/mockData';
 
 // =============================================================
@@ -18,9 +26,24 @@ function isSameDay(a, b) {
 }
 
 export function AppProvider({ children }) {
-  const [products, setProducts] = useState(PRODUCTS);
+
+  const [products, setProducts] = useState([]);
   const [sales, setSales] = useState(SALES);
   const [fiados, setFiados] = useState(FIADOS);
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const response = await fetch('http://localhost:3000/products');
+        const data = await response.json();
+        setProducts(data);
+      } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+      }
+    }
+
+    loadProducts();
+  }, []);
 
   // ---------- ESTOQUE ----------
   // API: POST /products
