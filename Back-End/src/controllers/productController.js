@@ -124,10 +124,10 @@ exports.updateProduct = async (req, res) => {
             barcode,
             supplier,
             photo,
-            cost_price,
-            sell_price,
+            costPrice,
+            sellPrice,
             stock,
-            min_stock
+            minStock
         } = req.body;
 
         await db.query(
@@ -151,10 +151,10 @@ exports.updateProduct = async (req, res) => {
                 barcode,
                 supplier,
                 photo,
-                cost_price,
-                sell_price,
+                costPrice,
+                sellPrice,
                 stock,
-                min_stock,
+                minStock,
                 id
             ]
         );
