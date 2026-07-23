@@ -23,7 +23,13 @@ exports.getProducts = async (req, res) => {
     ORDER BY id DESC
     `);
 
-        res.json(products);
+        const formattedProducts = products.map(product => ({
+            ...product,
+            costPrice: Number(product.costPrice),
+            sellPrice: Number(product.sellPrice)
+        }));
+
+        res.json(formattedProducts);
 
     } catch (error) {
         console.error(error);
@@ -99,7 +105,13 @@ exports.createProduct = async (req, res) => {
     WHERE id = ?
 `, [result.insertId]);
 
-        res.status(201).json(newProduct[0]);
+        const product = {
+            ...newProduct[0],
+            costPrice: Number(newProduct[0].costPrice),
+            sellPrice: Number(newProduct[0].sellPrice)
+        };
+
+        res.status(201).json(product);
 
     } catch (error) {
 
@@ -178,7 +190,13 @@ exports.updateProduct = async (req, res) => {
         WHERE id = ?
         `, [id]);
 
-        res.json(updated[0]);
+        const product = {
+            ...updated[0],
+            costPrice: Number(updated[0].costPrice),
+            sellPrice: Number(updated[0].sellPrice)
+        };
+
+        res.json(product);
 
     } catch (error) {
 
