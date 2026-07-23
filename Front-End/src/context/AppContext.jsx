@@ -47,16 +47,21 @@ export function AppProvider({ children }) {
 
   // ---------- ESTOQUE ----------
   // API: POST /products
-  const addProduct = useCallback((data) => {
-    const newProduct = {
-      id: `p-${Date.now()}`,
-      photo: data.photo || '📦',
-      createdAt: new Date().toISOString(),
-      ...data,
-    };
-    setProducts((prev) => [newProduct, ...prev]);
-    return newProduct;
-  }, []);
+  const addProduct = useCallback(async (data) => {
+  const response = await fetch('http://localhost:3000/products', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const newProduct = await response.json();
+
+  setProducts((prev) => [newProduct, ...prev]);
+
+  return newProduct;
+}, []);
 
   // API: PATCH /products/:id
   const updateProduct = useCallback((id, patch) => {

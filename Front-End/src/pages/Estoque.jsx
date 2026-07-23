@@ -145,14 +145,19 @@ export default function Estoque() {
         </div>
       )}
 
-      <ProductFormModal
-        open={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSave={(data) => {
-          addProduct(data);
-          setModalOpen(false);
-        }}
-      />
+  <ProductFormModal
+  open={modalOpen}
+  onClose={() => setModalOpen(false)}
+  onSave={async (data) => {
+    try {
+      await addProduct(data);
+      setModalOpen(false);
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao cadastrar produto.');
+    }
+  }}
+/>
     </div>
   );
 }
