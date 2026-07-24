@@ -1,5 +1,10 @@
-POST /sales
+const express = require('express');
+const router = express.Router();
 
-GET /sales
+const saleController = require('../controllers/saleController');
 
-GET /sales/:id
+router.post('/', saleController.createSale);
+router.get('/', saleController.getSales);
+router.get('/:id', saleController.getSaleById);
+
+module.exports = router;
